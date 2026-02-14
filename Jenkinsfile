@@ -15,7 +15,7 @@ pipeline {
         PRODUCTION = "${ID_DOCKER}-production"
     }
 
-    stages{
+    stages
 
         stage('Tests + Sonar') {
             agent {
@@ -33,35 +33,24 @@ pipeline {
                 '''
             }
         }
-    }
-
-    stage('Build image') {
+    stage('Build & Push') {
              agent{
                  docker {
                     image 'docker:26-cli'
                     args '-v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
-                 
-             steps {
+            environment {
+            DOCKERHUB_PASSWORD  = credentials('dockerhub')
+            }
+            steps {
                 script {
-                  sh 'docker build -t ${ID_DOCKER}/$IMAGE_NAME:$IMAGE_TAG .'
+                    sh '''
+                    docker build -t ${ID_DOCKER}/$IMAGE_NAME:$IMAGE_TAG .
+                    echo $DOCKERHUB_PASSWORD_PSW | docker login -u $ID_DOCKER --password-stdin
+                    docker push ${ID_DOCKER}/$IMAGE_NAME:$IMAGE_TAG
+                    '''
                 }
              }
         }
-     stage ('Login and Push Image on docker hub') {
-          agent any
-        environment {
-           DOCKERHUB_PASSWORD  = credentials('dockerhub')
-        }            
-          steps {
-             script {
-               sh '''
-                   echo $DOCKERHUB_PASSWORD_PSW | docker login -u $ID_DOCKER --password-stdin
-                   docker push ${ID_DOCKER}/$IMAGE_NAME:$IMAGE_TAG
-               '''
-             }
-          }
-      }    
-
-}
+    }
