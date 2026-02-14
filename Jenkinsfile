@@ -10,7 +10,12 @@ pipeline {
         SONAR_PROJECT_KEY = "ubiakoup_mini-projet-jenkins"
         SONAR_ORG = "ubiakoup-1"
         SONAR_HOST_URL = "https://sonarcloud.io"
-
+        SSH_KEY = credentials('ssh_key')
+        SSH_USER = "ubuntu"
+        HOSTNAME_DEPLOY_STAGING = "ec2-52-87-181-138.compute-1.amazonaws.com"
+        HOSTNAME_DEPLOY_PROD= "ec2-54-85-137-42.compute-1.amazonaws.com"
+         EC2_PUBLIC_IP_STAGING_STAGING= "52.87.181.138"
+         EC2_PUBLIC_IP_STAGING_PROD= "54.85.137.42"
         STAGING = "${ID_DOCKER}-staging"
         PRODUCTION = "${ID_DOCKER}-production"
     }
@@ -54,6 +59,66 @@ pipeline {
                 }
              }
         }
+
+        stage('Deploy to Staging') {
+        agent any
+        steps {
+            sshagent(['ssh_key']) {
+                sh '''
+                
+                echo "Copy SQL files to EC2"
+                scp -o StrictHostKeyChecking=no \
+                src/main/resources/database/*.sql \
+                ubuntu@EC2_PUBLIC_IP_STAGING_STAGING:/home/ubuntu/init-db/
+    
+                ssh -o StrictHostKeyChecking=no ubuntu@EC2_PUBLIC_IP_STAGING << EOF
+    
+                mkdir -p /home/ubuntu/init-db
+    
+                echo "Create network"
+                docker network create paymybuddy-net || true
+    
+                echo "Stop old containers"
+                docker stop paymybuddy-staging || true
+                docker rm paymybuddy-staging || true
+                docker stop mysql-staging || true
+                docker rm mysql-staging || true
+    
+                echo "Create volume"
+                docker volume create mysql-staging-data || true
+    
+                echo "Run MySQL with init scripts"
+                docker run -d \
+                  --name mysql-staging \
+                  --network paymybuddy-net \
+                  -e MYSQL_ROOT_PASSWORD=password \
+                  -e MYSQL_DATABASE=db_paymybuddy \
+                  -v mysql-staging-data:/var/lib/mysql \
+                  -v /home/ubuntu/init-db:/docker-entrypoint-initdb.d \
+                  mysql:8
+    
+                echo "Waiting for MySQL..."
+                sleep 20
+    
+                echo "Pull image"
+                docker pull ${ID_DOCKER}/${IMAGE_NAME}:${IMAGE_TAG}
+    
+                echo "Run App"
+                docker run -d \
+                  --name paymybuddy-staging \
+                  --network paymybuddy-net \
+                  -p 8081:8080 \
+                  -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql-staging:3306/db_paymybuddy \
+                  -e SPRING_DATASOURCE_USERNAME=root \
+                  -e SPRING_DATASOURCE_PASSWORD=password \
+                  ${ID_DOCKER}/${IMAGE_NAME}:${IMAGE_TAG}
+    
+                EOF
+                '''
+            }
+        }
+    }
+
     }
 
 }
