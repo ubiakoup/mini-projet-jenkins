@@ -7,8 +7,8 @@ pipeline {
         IMAGE_NAME = "paymybuddy"
         IMAGE_TAG = "latest"
         SONAR_TOKEN = credentials('sonar_token')
-        SONAR_PROJECT_KEY = "paymybuddy_project"
-        SONAR_ORG = "ubiakoup"
+        SONAR_PROJECT_KEY = "ubiakoup_mini-projet-jenkins"
+        SONAR_ORG = "ubiakoup-1"
         SONAR_HOST_URL = "https://sonarcloud.io"
 
         STAGING = "${ID_DOCKER}-staging"
