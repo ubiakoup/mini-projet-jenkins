@@ -63,7 +63,7 @@ pipeline {
         stage('Deploy to Staging') {
         agent any
         steps {
-            sshagent(['ssh_key']) {
+            sshagent(['SSH_KEY']) {
                 sh '''
                 
                 echo "Copy SQL files to EC2"
