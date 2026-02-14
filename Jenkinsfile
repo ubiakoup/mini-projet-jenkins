@@ -15,7 +15,7 @@ pipeline {
         PRODUCTION = "${ID_DOCKER}-production"
     }
 
-    stages
+    stages{
 
         stage('Tests + Sonar') {
             agent {
@@ -54,3 +54,5 @@ pipeline {
              }
         }
     }
+
+}
