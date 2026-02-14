@@ -25,11 +25,7 @@ pipeline {
             }
             steps {
                 sh '''
-                ./mvnw clean verify sonar:sonar \
-                -Dsonar.projectKey=$SONAR_PROJECT_KEY \
-                -Dsonar.organization=$SONAR_ORG \
-                -Dsonar.host.url=$SONAR_HOST_URL \
-                -Dsonar.login=$SONAR_TOKEN
+                ./mvnw clean verify sonar:sonar -Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.organization=$SONAR_ORG -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN
                 '''
             }
         }
