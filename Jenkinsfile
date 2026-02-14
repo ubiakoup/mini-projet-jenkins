@@ -25,7 +25,11 @@ pipeline {
             }
             steps {
                 sh '''
-                ./mvnw clean verify sonar:sonar -Dmaven.repo.local=/root/.m2/repository -Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.organization=$SONAR_ORG -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN
+                mvn clean verify sonar:sonar \
+                -Dsonar.projectKey=$SONAR_PROJECT_KEY \
+                -Dsonar.organization=$SONAR_ORG \
+                -Dsonar.host.url=$SONAR_HOST_URL \
+                -Dsonar.login=$SONAR_TOKEN
                 '''
             }
         }
