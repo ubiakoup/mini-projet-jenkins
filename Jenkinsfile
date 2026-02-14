@@ -21,12 +21,11 @@ pipeline {
             agent {
                 docker {
                     image 'maven:3.9.9-eclipse-temurin-17'
-                    args '-v /root/.m2:/root/.m2'
                 }
             }
             steps {
                 sh '''
-                ./mvnw clean verify sonar:sonar -Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.organization=$SONAR_ORG -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN
+                ./mvnw clean verify sonar:sonar -Dmaven.repo.local=/root/.m2/repository -Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.organization=$SONAR_ORG -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN
                 '''
             }
         }
