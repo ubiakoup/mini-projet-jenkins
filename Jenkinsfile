@@ -14,7 +14,7 @@ pipeline {
         HOSTNAME_DEPLOY_STAGING = "ec2-52-87-181-138.compute-1.amazonaws.com"
         HOSTNAME_DEPLOY_PROD= "ec2-54-85-137-42.compute-1.amazonaws.com"
         EC2_PUBLIC_IP_STAGING= "52.87.181.138"
-        EC2_PUBLIC_IP_STAGING_PROD= "54.85.137.42"
+        EC2_PUBLIC_IP_PROD= "54.85.137.42"
         SPRING_DATASOURCE_USERNAME= credentials('DB_USER')
         SPRING_DATASOURCE_PASSWORD= credentials('DB_PASS')
         STAGING = "${ID_DOCKER}-staging"
@@ -111,6 +111,66 @@ pipeline {
                       --network paymybuddy-net \
                       -p 8081:8080 \
                       -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql-staging:3306/db_paymybuddy \
+                      -e SPRING_DATASOURCE_USERNAME=$SPRING_DATASOURCE_USERNAME \
+                      -e SPRING_DATASOURCE_PASSWORD=$SPRING_DATASOURCE_PASSWORD \
+                      ${ID_DOCKER}/${IMAGE_NAME}:${IMAGE_TAG}
+                      
+EOF
+'''
+                }
+            }
+        }
+
+         stage('Deploy to prod') {
+            agent any
+            steps {
+                sshagent(['ssh_key']) {
+                    sh '''
+                    echo "Prepare remote directory"
+                    ssh -o StrictHostKeyChecking=no $SSH_USER@$EC2_PUBLIC_IP_PROD "mkdir -p /home/$SSH_USER/init-db"
+        
+                    echo "Copy SQL files"
+                    scp -o StrictHostKeyChecking=no \
+                    src/main/resources/database/*.sql \
+                    $SSH_USER@EC2_PUBLIC_IP_PROD:/home/$SSH_USER/init-db/
+        
+                    echo "Deploy on EC2"
+                    ssh -o StrictHostKeyChecking=no $SSH_USER@$EC2_PUBLIC_IP_PROD <<EOF
+        
+                    echo "Create network"
+                    docker network create paymybuddy-net || true
+        
+                    echo "Stop old containers"
+                    docker stop paymybuddy-prod || true
+                    docker rm paymybuddy-prod || true
+                    docker stop mysql-prod || true
+                    docker rm mysql-prod || true
+        
+                    echo "Create volume"
+                    docker volume create mysql-prod-data || true
+        
+                    echo "Run MySQL"
+                    docker run -d \
+                      --name mysql-staging \
+                      --network paymybuddy-net \
+                      -e MYSQL_ROOT_PASSWORD=password \
+                      -e MYSQL_DATABASE=db_paymybuddy \
+                      -v mysql-prod-data:/var/lib/mysql \
+                      -v /home/$SSH_USER/init-db:/docker-entrypoint-initdb.d \
+                      mysql:8
+        
+                    echo "Waiting for MySQL..."
+                    sleep 20
+        
+                    echo "Pull image"
+                    docker pull ${ID_DOCKER}/${IMAGE_NAME}:${IMAGE_TAG}
+        
+                    echo "Run App"
+                    docker run -d \
+                      --name paymybuddy-prod \
+                      --network paymybuddy-net \
+                      -p 8081:8080 \
+                      -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql-prod:3306/db_paymybuddy \
                       -e SPRING_DATASOURCE_USERNAME=$SPRING_DATASOURCE_USERNAME \
                       -e SPRING_DATASOURCE_PASSWORD=$SPRING_DATASOURCE_PASSWORD \
                       ${ID_DOCKER}/${IMAGE_NAME}:${IMAGE_TAG}
