@@ -176,12 +176,49 @@ EOF
                       ${ID_DOCKER}/${IMAGE_NAME}:${IMAGE_TAG}
                       
 EOF
-'''
+'''               
+                    
                 }
             }
         }
 
+        stage('Test Staging') {
+            agent {
+                docker {
+                    image 'alpine:latest'
+                }
+            }
+            steps {
+                sh '''
+                apk add --no-cache curl
+        
+                echo "Testing staging..."
+        
+                RESPONSE=$(curl -s http://$EC2_PUBLIC_IP_STAGING:8081)
+        
+                echo "$RESPONSE" | grep "Pay My Buddy"
+                '''
+            }
+        }
 
-            
+        stage('Test Production') {
+            agent {
+                docker {
+                    image 'alpine:latest'
+                }
+            }
+            steps {
+                sh '''
+                apk add --no-cache curl
+        
+                echo "Testing production..."
+        
+                RESPONSE=$(curl -s http://$EC2_PUBLIC_IP_PROD:8081)
+        
+                echo "$RESPONSE" | grep "Pay My Buddy"
+                '''
+            }
+        }
+          
      }
   }
