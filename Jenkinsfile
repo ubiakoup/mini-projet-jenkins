@@ -73,7 +73,7 @@ pipeline {
                     $SSH_USER@$EC2_PUBLIC_IP_STAGING:/home/$SSH_USER/init-db/
         
                     echo "Deploy on EC2"
-                    ssh -o StrictHostKeyChecking=no $SSH_USER@$EC2_PUBLIC_IP_STAGING"
+                    ssh -o StrictHostKeyChecking=no $SSH_USER@$EC2_PUBLIC_IP_STAGING
         
                     echo "Create network"
                     docker network create paymybuddy-net || true
@@ -112,7 +112,7 @@ pipeline {
                       -e SPRING_DATASOURCE_USERNAME=$SPRING_DATASOURCE_USERNAME \
                       -e SPRING_DATASOURCE_PASSWORD=$SPRING_DATASOURCE_PASSWORD \
                       ${ID_DOCKER}/${IMAGE_NAME}:${IMAGE_TAG}
-                    "
+                    
                     '''
                 }
             }
