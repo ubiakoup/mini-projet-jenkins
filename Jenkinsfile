@@ -115,8 +115,8 @@ pipeline {
                       -e SPRING_DATASOURCE_PASSWORD=password \
                       ${ID_DOCKER}/${IMAGE_NAME}:${IMAGE_TAG}
                       
-                    EOF
-                    '''
+EOF
+'''
                 }
             }
         }
