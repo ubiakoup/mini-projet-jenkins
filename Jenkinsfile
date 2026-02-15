@@ -10,7 +10,6 @@ pipeline {
         SONAR_PROJECT_KEY = "ubiakoup_mini-projet-jenkins"
         SONAR_ORG = "ubiakoup-1"
         SONAR_HOST_URL = "https://sonarcloud.io"
-        SSH_KEY = credentials('ssh_key')
         SSH_USER = "ubuntu"
         HOSTNAME_DEPLOY_STAGING = "ec2-52-87-181-138.compute-1.amazonaws.com"
         HOSTNAME_DEPLOY_PROD= "ec2-54-85-137-42.compute-1.amazonaws.com"
