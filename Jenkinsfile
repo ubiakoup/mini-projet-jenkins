@@ -132,7 +132,7 @@ EOF
                     echo "Copy SQL files"
                     scp -o StrictHostKeyChecking=no \
                     src/main/resources/database/*.sql \
-                    $SSH_USER@EC2_PUBLIC_IP_PROD:/home/$SSH_USER/init-db/
+                    $SSH_USER@$EC2_PUBLIC_IP_PROD:/home/$SSH_USER/init-db/
         
                     echo "Deploy on EC2"
                     ssh -o StrictHostKeyChecking=no $SSH_USER@$EC2_PUBLIC_IP_PROD <<EOF
