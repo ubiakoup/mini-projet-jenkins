@@ -75,7 +75,7 @@ pipeline {
                     $SSH_USER@$EC2_PUBLIC_IP_STAGING:/home/$SSH_USER/init-db/
         
                     echo "Deploy on EC2"
-                    ssh -o StrictHostKeyChecking=no $SSH_USER@$EC2_PUBLIC_IP_STAGING
+                    ssh -o StrictHostKeyChecking=no $SSH_USER@$EC2_PUBLIC_IP_STAGING <<EOF
         
                     echo "Create network"
                     docker network create paymybuddy-net || true
@@ -111,10 +111,11 @@ pipeline {
                       --network paymybuddy-net \
                       -p 8081:8080 \
                       -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql-staging:3306/db_paymybuddy \
-                      -e SPRING_DATASOURCE_USERNAME=$SPRING_DATASOURCE_USERNAME \
-                      -e SPRING_DATASOURCE_PASSWORD=$SPRING_DATASOURCE_PASSWORD \
+                      -e SPRING_DATASOURCE_USERNAME=root \
+                      -e SPRING_DATASOURCE_PASSWORD=password \
                       ${ID_DOCKER}/${IMAGE_NAME}:${IMAGE_TAG}
-                    
+                      
+                    EOF
                     '''
                 }
             }
