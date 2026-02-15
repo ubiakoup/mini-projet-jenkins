@@ -91,7 +91,7 @@ pipeline {
         
                     echo "Run MySQL"
                     docker run -d \
-                      --name mysql-prod \
+                      --name mysql-staging \
                       --network paymybuddy-net \
                       -e MYSQL_ROOT_PASSWORD=password \
                       -e MYSQL_DATABASE=db_paymybuddy \
@@ -151,7 +151,7 @@ EOF
         
                     echo "Run MySQL"
                     docker run -d \
-                      --name mysql-staging \
+                      --name mysql-prod \
                       --network paymybuddy-net \
                       -e MYSQL_ROOT_PASSWORD=password \
                       -e MYSQL_DATABASE=db_paymybuddy \
