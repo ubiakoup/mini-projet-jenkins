@@ -15,6 +15,8 @@ pipeline {
         HOSTNAME_DEPLOY_PROD= "ec2-54-85-137-42.compute-1.amazonaws.com"
         EC2_PUBLIC_IP_STAGING= "52.87.181.138"
         EC2_PUBLIC_IP_STAGING_PROD= "54.85.137.42"
+        SPRING_DATASOURCE_USERNAME= credentials('DB_USER')
+        SPRING_DATASOURCE_PASSWORD= credentials('DB_PASS')
         STAGING = "${ID_DOCKER}-staging"
         PRODUCTION = "${ID_DOCKER}-production"
     }
