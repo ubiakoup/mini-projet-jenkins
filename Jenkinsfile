@@ -62,6 +62,9 @@ pipeline {
         }
 
         stage('Deploy to Staging') {
+            when {
+                branch 'main'
+            }
             agent any
             steps {
                 sshagent(['ssh_key']) {
@@ -122,6 +125,9 @@ EOF
         }
 
          stage('Deploy to prod') {
+            when {
+                branch 'main'
+            }
             agent any
             steps {
                 sshagent(['ssh_key']) {
@@ -183,6 +189,9 @@ EOF
         }
 
         stage('Test Staging') {
+            when {
+                branch 'main'
+            }
             agent {
                 docker {
                     image 'alpine:latest'
@@ -202,6 +211,9 @@ EOF
         }
 
         stage('Test Production') {
+            when {
+                branch 'main'
+            }
             agent {
                 docker {
                     image 'alpine:latest'
