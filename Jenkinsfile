@@ -61,62 +61,65 @@ pipeline {
         }
 
         stage('Deploy to Staging') {
-        agent any
-        steps {
-            sshagent(['SSH_KEY']) {
-                sh '''
-                
-                echo "Copy SQL files to EC2"
-                scp -o StrictHostKeyChecking=no \
-                src/main/resources/database/*.sql \
-                ubuntu@EC2_PUBLIC_IP_STAGING_STAGING:/home/ubuntu/init-db/
-    
-                ssh -o StrictHostKeyChecking=no ubuntu@EC2_PUBLIC_IP_STAGING << EOF
-    
-                mkdir -p /home/ubuntu/init-db
-    
-                echo "Create network"
-                docker network create paymybuddy-net || true
-    
-                echo "Stop old containers"
-                docker stop paymybuddy-staging || true
-                docker rm paymybuddy-staging || true
-                docker stop mysql-staging || true
-                docker rm mysql-staging || true
-    
-                echo "Create volume"
-                docker volume create mysql-staging-data || true
-    
-                echo "Run MySQL with init scripts"
-                docker run -d \
-                  --name mysql-staging \
-                  --network paymybuddy-net \
-                  -e MYSQL_ROOT_PASSWORD=password \
-                  -e MYSQL_DATABASE=db_paymybuddy \
-                  -v mysql-staging-data:/var/lib/mysql \
-                  -v /home/ubuntu/init-db:/docker-entrypoint-initdb.d \
-                  mysql:8
-    
-                echo "Waiting for MySQL..."
-                sleep 20
-    
-                echo "Pull image"
-                docker pull ${ID_DOCKER}/${IMAGE_NAME}:${IMAGE_TAG}
-    
-                echo "Run App"
-                docker run -d \
-                  --name paymybuddy-staging \
-                  --network paymybuddy-net \
-                  -p 8081:8080 \
-                  -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql-staging:3306/db_paymybuddy \
-                  -e SPRING_DATASOURCE_USERNAME=root \
-                  -e SPRING_DATASOURCE_PASSWORD=password \
-                  ${ID_DOCKER}/${IMAGE_NAME}:${IMAGE_TAG}
-    
-                EOF
-                '''
+            agent any
+            steps {
+                sshagent(['ssh_key']) {
+                    sh '''
+                    echo "Prepare remote directory"
+                    ssh -o StrictHostKeyChecking=no $SSH_USER@$EC2_PUBLIC_IP_STAGING "mkdir -p /home/$SSH_USER/init-db"
+        
+                    echo "Copy SQL files"
+                    scp -o StrictHostKeyChecking=no \
+                    src/main/resources/database/*.sql \
+                    $SSH_USER@$EC2_PUBLIC_IP_STAGING:/home/$SSH_USER/init-db/
+        
+                    echo "Deploy on EC2"
+                    ssh -o StrictHostKeyChecking=no $SSH_USER@$EC2_PUBLIC_IP_STAGING <<EOF
+        
+                    echo "Create network"
+                    docker network create paymybuddy-net || true
+        
+                    echo "Stop old containers"
+                    docker stop paymybuddy-staging || true
+                    docker rm paymybuddy-staging || true
+                    docker stop mysql-staging || true
+                    docker rm mysql-staging || true
+        
+                    echo "Create volume"
+                    docker volume create mysql-staging-data || true
+        
+                    echo "Run MySQL"
+                    docker run -d \
+                      --name mysql-staging \
+                      --network paymybuddy-net \
+                      -e MYSQL_ROOT_PASSWORD=password \
+                      -e MYSQL_DATABASE=db_paymybuddy \
+                      -v mysql-staging-data:/var/lib/mysql \
+                      -v /home/$SSH_USER/init-db:/docker-entrypoint-initdb.d \
+                      mysql:8
+        
+                    echo "Waiting for MySQL..."
+                    sleep 20
+        
+                    echo "Pull image"
+                    docker pull ${ID_DOCKER}/${IMAGE_NAME}:${IMAGE_TAG}
+        
+                    echo "Run App"
+                    docker run -d \
+                      --name paymybuddy-staging \
+                      --network paymybuddy-net \
+                      -p 8081:8080 \
+                      -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql-staging:3306/db_paymybuddy \
+                      -e SPRING_DATASOURCE_USERNAME=$SPRING_DATASOURCE_USERNAME \
+                      -e SPRING_DATASOURCE_PASSWORD=$SPRING_DATASOURCE_PASSWORD \
+                      ${ID_DOCKER}/${IMAGE_NAME}:${IMAGE_TAG}
+        
+                    EOF
+                    '''
+                }
             }
-         }
+        }
+
 
             
      }
