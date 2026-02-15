@@ -111,8 +111,8 @@ pipeline {
                       --network paymybuddy-net \
                       -p 8081:8080 \
                       -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql-staging:3306/db_paymybuddy \
-                      -e SPRING_DATASOURCE_USERNAME=root \
-                      -e SPRING_DATASOURCE_PASSWORD=password \
+                      -e SPRING_DATASOURCE_USERNAME=$SPRING_DATASOURCE_USERNAME \
+                      -e SPRING_DATASOURCE_PASSWORD=$SPRING_DATASOURCE_PASSWORD \
                       ${ID_DOCKER}/${IMAGE_NAME}:${IMAGE_TAG}
                       
 EOF
