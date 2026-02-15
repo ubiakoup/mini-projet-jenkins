@@ -13,8 +13,8 @@ pipeline {
         SSH_USER = "ubuntu"
         HOSTNAME_DEPLOY_STAGING = "ec2-52-87-181-138.compute-1.amazonaws.com"
         HOSTNAME_DEPLOY_PROD= "ec2-54-85-137-42.compute-1.amazonaws.com"
-         EC2_PUBLIC_IP_STAGING_STAGING= "52.87.181.138"
-         EC2_PUBLIC_IP_STAGING_PROD= "54.85.137.42"
+        EC2_PUBLIC_IP_STAGING= "52.87.181.138"
+        EC2_PUBLIC_IP_STAGING_PROD= "54.85.137.42"
         STAGING = "${ID_DOCKER}-staging"
         PRODUCTION = "${ID_DOCKER}-production"
     }
