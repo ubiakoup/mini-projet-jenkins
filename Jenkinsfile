@@ -41,10 +41,10 @@ pipeline {
             }
         }
     stage('Build & Push') {
-             agent{
-                 when {
+             when {
                        expression { env.GIT_BRANCH == 'origin/main' }
                  }
+             agent{
                  docker {
                     image 'docker:26-cli'
                     args '-v /var/run/docker.sock:/var/run/docker.sock'
