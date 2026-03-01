@@ -63,7 +63,7 @@ pipeline {
 
         stage('Deploy to Staging') {
             when {
-                branch 'main'
+                expression { env.GIT_BRANCH == 'origin/main' }
             }
             agent any
             steps {
@@ -126,7 +126,7 @@ EOF
 
          stage('Deploy to prod') {
             when {
-                branch 'main'
+                expression { env.GIT_BRANCH == 'origin/main' }
             }
             agent any
             steps {
@@ -190,7 +190,7 @@ EOF
 
         stage('Test Staging') {
             when {
-                branch 'main'
+                expression { env.GIT_BRANCH == 'origin/main' }
             }
             agent {
                 docker {
@@ -212,7 +212,7 @@ EOF
 
         stage('Test Production') {
             when {
-                branch 'main'
+                expression { env.GIT_BRANCH == 'origin/main' }
             }
             agent {
                 docker {
