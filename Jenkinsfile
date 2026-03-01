@@ -42,6 +42,9 @@ pipeline {
         }
     stage('Build & Push') {
              agent{
+                 when {
+                       expression { env.GIT_BRANCH == 'origin/main' }
+                 }
                  docker {
                     image 'docker:26-cli'
                     args '-v /var/run/docker.sock:/var/run/docker.sock'
@@ -54,7 +57,7 @@ pipeline {
                 script {
                     sh '''
                     docker build -t ${ID_DOCKER}/$IMAGE_NAME:$IMAGE_TAG .
-                    echo $DOCKERHUB_PASSWORD_PSW | docker login -u $DOCKERHUB_PASSWORD_USR --password-stdin
+                    echo $DOCKERHUB_PASSWORD_PSW | docker login -u "$DOCKERHUB_PASSWORD_USR" --password-stdin
                     docker push ${ID_DOCKER}/$IMAGE_NAME:$IMAGE_TAG
                     '''
                 }
