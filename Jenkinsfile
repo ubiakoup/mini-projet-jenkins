@@ -206,7 +206,7 @@ EOF
         
                 echo "Testing staging..."
         
-                RESPONSE=$(curl -s http://$EC2_PUBLIC_IP_STAGING:8081)
+                RESPONSE=$(curl -s http://$EC2_PUBLIC_IP_STAGING:8180)
         
                 echo "$RESPONSE" | grep "Pay My Buddy"
                 '''
@@ -228,7 +228,7 @@ EOF
         
                 echo "Testing production..."
         
-                RESPONSE=$(curl -s http://$EC2_PUBLIC_IP_PROD:8081)
+                RESPONSE=$(curl -s http://$EC2_PUBLIC_IP_PROD:8180)
         
                 echo "$RESPONSE" | grep "Pay My Buddy"
                 '''
