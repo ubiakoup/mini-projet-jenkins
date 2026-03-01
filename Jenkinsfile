@@ -11,10 +11,10 @@ pipeline {
         SONAR_ORG = "ubiakoup-1"
         SONAR_HOST_URL = "https://sonarcloud.io"
         SSH_USER = "ubuntu"
-        HOSTNAME_DEPLOY_STAGING = "ec2-52-87-181-138.compute-1.amazonaws.com"
-        HOSTNAME_DEPLOY_PROD= "ec2-54-85-137-42.compute-1.amazonaws.com"
-        EC2_PUBLIC_IP_STAGING= "52.87.181.138"
-        EC2_PUBLIC_IP_PROD= "54.85.137.42"
+        HOSTNAME_DEPLOY_STAGING = "ec2-18-205-156-82.compute-1.amazonaws.com"
+        HOSTNAME_DEPLOY_PROD= "ec2-52-90-252-160.compute-1.amazonaws.com"
+        EC2_PUBLIC_IP_STAGING= "18.205.156.82"
+        EC2_PUBLIC_IP_PROD= "52.90.252.160"
         SPRING_DATASOURCE_USERNAME= credentials('DB_USER')
         SPRING_DATASOURCE_PASSWORD= credentials('DB_PASS')
         STAGING = "${ID_DOCKER}-staging"
@@ -54,7 +54,7 @@ pipeline {
                 script {
                     sh '''
                     docker build -t ${ID_DOCKER}/$IMAGE_NAME:$IMAGE_TAG .
-                    echo $DOCKERHUB_PASSWORD_PSW | docker login -u $ID_DOCKER --password-stdin
+                    echo $DOCKERHUB_PASSWORD_PSW | docker login -u $DOCKERHUB_PASSWORD_USR --password-stdin
                     docker push ${ID_DOCKER}/$IMAGE_NAME:$IMAGE_TAG
                     '''
                 }
